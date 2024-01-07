@@ -16,8 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import com.eevajonna.period.R
-import com.eevajonna.period.ui.screens.Period
+import com.eevajonna.period.data.endDateToLocalDate
+import com.eevajonna.period.data.isCurrent
+import com.eevajonna.period.data.startDateToLocalDate
 import com.eevajonna.period.ui.utils.TextUtils
 import com.eevajonna.period.ui.utils.TimeUtils
 import java.time.LocalDate
@@ -25,24 +28,19 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateRangePickerDialog(
-    selectedPeriod: Period,
+    selectedPeriod: MenstruationPeriodRecord,
     onDismiss: () -> Unit,
-    onConfirm: (Period) -> Unit,
+    onConfirm: (MenstruationPeriodRecord) -> Unit,
 ) {
     val dateRangePickerState = rememberDateRangePickerState(
-        initialSelectedStartDateMillis = TimeUtils.localDateToMilliseconds(selectedPeriod.startDate),
-        initialSelectedEndDateMillis = if (selectedPeriod.isCurrent) null else TimeUtils.localDateToMilliseconds(selectedPeriod.endDate!!),
+        initialSelectedStartDateMillis = TimeUtils.localDateToMilliseconds(selectedPeriod.startDateToLocalDate()),
+        initialSelectedEndDateMillis = if (selectedPeriod.isCurrent()) null else TimeUtils.localDateToMilliseconds(selectedPeriod.endDateToLocalDate()),
     )
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                val updated = selectedPeriod.copy(
-                    startDate = TimeUtils.milliSecondsToLocalDate(dateRangePickerState.selectedStartDateMillis)
-                        ?: LocalDate.now(),
-                    endDate = TimeUtils.milliSecondsToLocalDate(dateRangePickerState.selectedEndDateMillis),
-                )
-                onConfirm(updated)
+                // TODO
             }) {
                 Text(stringResource(R.string.button_save))
             }

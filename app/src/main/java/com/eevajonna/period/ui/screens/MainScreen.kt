@@ -30,21 +30,23 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eevajonna.period.R
 import com.eevajonna.period.data.HealthConnectManager
 import com.eevajonna.period.data.PERMISSIONS
+import com.eevajonna.period.data.startDateToLocalDate
 import com.eevajonna.period.ui.PeriodViewModel
 import com.eevajonna.period.ui.PeriodViewModelFactory
 import com.eevajonna.period.ui.components.DateRangePickerDialog
 import com.eevajonna.period.ui.components.PeriodRow
 import java.time.LocalDate
 import android.health.connect.HealthConnectManager as HCM
+import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(healthConnectManager: HealthConnectManager) {
-    val periods = emptyList<Period>()
     val context = LocalContext.current
 
     val viewModel: PeriodViewModel = viewModel(
@@ -55,19 +57,19 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
 
     val permissionsLauncher =
         rememberLauncherForActivityResult(viewModel.permissionsLauncher) {
-            // TODO
+            viewModel.getInitialRecords()
         }
 
     var showDatePickerDialog by remember {
         mutableStateOf(false)
     }
     var selectedPeriod by remember {
-        mutableStateOf(Period.EMPTY)
+        mutableStateOf(MainScreen.emptyRecord)
     }
 
     LaunchedEffect(Unit) {
         if (viewModel.permissionsGranted) {
-            // TODO
+            viewModel.getInitialRecords()
         } else {
             permissionsLauncher.launch(PERMISSIONS)
         }
@@ -79,14 +81,14 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                selectedPeriod = Period.EMPTY
+                selectedPeriod = MainScreen.emptyRecord
                 showDatePickerDialog = true
             }) {
                 Icon(Icons.Default.Add, stringResource(R.string.button_add_new_period))
             }
         },
     ) { paddingVals ->
-        val periodsPerYear = periods.groupBy { period -> period.startDate.year }
+        val periodsPerYear = viewModel.periods.groupBy { period -> period.startDateToLocalDate().year }
         LazyColumn(
             modifier = Modifier
                 .padding(paddingVals)
@@ -119,8 +121,17 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
                             modifier = Modifier.semantics { heading() },
                         )
                     }
-                    items(periodsForYear) {
-                        PeriodRow(period = it) {
+                    items(
+                        periodsForYear
+                            .sortedWith(
+                                compareByDescending {
+                                    it.startDateToLocalDate()
+                                },
+                            ),
+                    ) {
+                        PeriodRow(
+                            period = it
+                        ) {
                             selectedPeriod = it
                             showDatePickerDialog = true
                         }
@@ -131,24 +142,19 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
             DateRangePickerDialog(
                 selectedPeriod = selectedPeriod,
                 onDismiss = { showDatePickerDialog = false },
-            ) { updatedSelectedPeriod ->
+            ) {
                 showDatePickerDialog = false
-                selectedPeriod = updatedSelectedPeriod
             }
         }
     }
 }
 
-data class Period(
-    val startDate: LocalDate,
-    val endDate: LocalDate?,
-) {
-    val isCurrent = endDate == null
-    companion object {
-        val EMPTY = Period(LocalDate.now(), null)
-    }
-}
-
 object MainScreen {
     val padding = 16.dp
+    val emptyRecord = MenstruationPeriodRecord(
+        startTime = Instant.now(),
+        endTime = Instant.now(),
+        startZoneOffset = null,
+        endZoneOffset = null,
+    )
 }
