@@ -40,6 +40,15 @@ class PeriodViewModel(private val healthConnectManager: HealthConnectManager) : 
             }
         }
     }
+
+    fun updateMenstruationRecord(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModelScope.launch {
+            tryWithPermissionsCheck {
+                healthConnectManager.updateMenstruationRecords(menstruationPeriodRecord)
+                getPeriodRecords()
+            }
+        }
+    }
     private fun checkPermissions() {
         viewModelScope.launch {
             permissionsGranted = healthConnectManager.hasAllPermissions()

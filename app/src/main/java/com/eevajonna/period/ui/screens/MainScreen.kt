@@ -66,9 +66,16 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
     var selectedPeriod by remember {
         mutableStateOf(MainScreen.emptyRecord)
     }
+    var datePickerAction by remember {
+        mutableStateOf(DatePickerAction.INSERT)
+    }
 
     fun saveMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
         viewModel.writeMenstruationRecord(menstruationPeriodRecord)
+    }
+
+    fun updateMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModel.updateMenstruationRecord(menstruationPeriodRecord)
     }
 
     LaunchedEffect(Unit) {
@@ -87,6 +94,7 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
             FloatingActionButton(onClick = {
                 selectedPeriod = MainScreen.emptyRecord
                 showDatePickerDialog = true
+                datePickerAction = DatePickerAction.INSERT
             }) {
                 Icon(Icons.Default.Add, stringResource(R.string.button_add_new_period))
             }
@@ -138,6 +146,7 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
                         ) {
                             selectedPeriod = it
                             showDatePickerDialog = true
+                            datePickerAction = DatePickerAction.UPDATE
                         }
                     }
                 }
@@ -149,7 +158,10 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
             ) { updatedSelectedPeriod ->
                 showDatePickerDialog = false
                 selectedPeriod = updatedSelectedPeriod
-                saveMenstruationPeriod(updatedSelectedPeriod)
+                when (datePickerAction) {
+                    DatePickerAction.INSERT -> saveMenstruationPeriod(updatedSelectedPeriod)
+                    DatePickerAction.UPDATE -> updateMenstruationPeriod(updatedSelectedPeriod)
+                }
             }
         }
     }
@@ -163,4 +175,8 @@ object MainScreen {
         startZoneOffset = null,
         endZoneOffset = null,
     )
+}
+
+enum class DatePickerAction {
+    UPDATE, INSERT
 }

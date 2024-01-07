@@ -39,6 +39,19 @@ class HealthConnectManager(private val context: Context) {
             Log.e("Error", "Message: ${e.message}")
         }
     }
+
+    suspend fun updateMenstruationRecords(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        try {
+            healthConnectClient.updateRecords(
+                listOf(menstruationPeriodRecord),
+            )
+
+            Toast.makeText(context, "Successfully updated records", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+            Log.e("Error", "Message: ${e.message}")
+        }
+    }
 }
 val PERMISSIONS =
     setOf(
