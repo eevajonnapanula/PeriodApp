@@ -78,6 +78,10 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
         viewModel.updateMenstruationRecord(menstruationPeriodRecord)
     }
 
+    fun deleteMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModel.deleteMenstruationRecord(menstruationPeriodRecord)
+    }
+
     LaunchedEffect(Unit) {
         if (viewModel.permissionsGranted) {
             viewModel.getInitialRecords()
@@ -142,7 +146,11 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
                             ),
                     ) {
                         PeriodRow(
-                            period = it
+                            period = it,
+                            onDeleteIconClick = {
+                                deleteMenstruationPeriod(it)
+                                showDatePickerDialog = false
+                            }
                         ) {
                             selectedPeriod = it
                             showDatePickerDialog = true

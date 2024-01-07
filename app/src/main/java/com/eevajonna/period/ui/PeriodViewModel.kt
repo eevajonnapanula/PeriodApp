@@ -41,6 +41,15 @@ class PeriodViewModel(private val healthConnectManager: HealthConnectManager) : 
         }
     }
 
+    fun deleteMenstruationRecord(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModelScope.launch {
+            tryWithPermissionsCheck {
+                healthConnectManager.deleteMenstruationRecords(menstruationPeriodRecord)
+                getPeriodRecords()
+            }
+        }
+    }
+
     fun updateMenstruationRecord(menstruationPeriodRecord: MenstruationPeriodRecord) {
         viewModelScope.launch {
             tryWithPermissionsCheck {

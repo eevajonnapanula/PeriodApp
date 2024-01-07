@@ -40,6 +40,26 @@ class HealthConnectManager(private val context: Context) {
         }
     }
 
+    suspend fun deleteMenstruationRecords(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        val clientRecordIdList = if (menstruationPeriodRecord.metadata.clientRecordId != null) {
+            listOf(menstruationPeriodRecord.metadata.clientRecordId!!)
+        } else {
+            emptyList()
+        }
+        try {
+            healthConnectClient.deleteRecords(
+                MenstruationPeriodRecord::class,
+                recordIdsList = listOf(menstruationPeriodRecord.metadata.id),
+                clientRecordIdsList = clientRecordIdList,
+            )
+
+            Toast.makeText(context, "Successfully deleted records", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+            Log.e("Error", "Message: ${e.message}")
+        }
+    }
+
     suspend fun updateMenstruationRecords(menstruationPeriodRecord: MenstruationPeriodRecord) {
         try {
             healthConnectClient.updateRecords(
