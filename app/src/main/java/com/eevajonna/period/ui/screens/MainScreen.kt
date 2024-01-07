@@ -67,6 +67,10 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
         mutableStateOf(MainScreen.emptyRecord)
     }
 
+    fun saveMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModel.writeMenstruationRecord(menstruationPeriodRecord)
+    }
+
     LaunchedEffect(Unit) {
         if (viewModel.permissionsGranted) {
             viewModel.getInitialRecords()
@@ -142,8 +146,10 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
             DateRangePickerDialog(
                 selectedPeriod = selectedPeriod,
                 onDismiss = { showDatePickerDialog = false },
-            ) {
+            ) { updatedSelectedPeriod ->
                 showDatePickerDialog = false
+                selectedPeriod = updatedSelectedPeriod
+                saveMenstruationPeriod(updatedSelectedPeriod)
             }
         }
     }

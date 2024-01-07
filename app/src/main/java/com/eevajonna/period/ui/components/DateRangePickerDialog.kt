@@ -23,7 +23,7 @@ import com.eevajonna.period.data.isCurrent
 import com.eevajonna.period.data.startDateToLocalDate
 import com.eevajonna.period.ui.utils.TextUtils
 import com.eevajonna.period.ui.utils.TimeUtils
-import java.time.LocalDate
+import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +40,26 @@ fun DateRangePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                // TODO
+                val startTime =
+                    if (dateRangePickerState.selectedStartDateMillis != null) {
+                        Instant.ofEpochMilli(dateRangePickerState.selectedStartDateMillis!!)
+                    } else
+                        Instant.now()
+
+                val endTime =
+                    if (dateRangePickerState.selectedEndDateMillis != null) {
+                        Instant.ofEpochMilli(dateRangePickerState.selectedEndDateMillis!!)
+                    } else
+                        startTime.plusSeconds(60) // This needs to be different from start time, but within the same day to work as intended on my code.
+
+                val updated = MenstruationPeriodRecord(
+                    startTime = startTime,
+                    endTime = endTime,
+                    startZoneOffset = selectedPeriod.startZoneOffset,
+                    endZoneOffset = selectedPeriod.endZoneOffset,
+                    metadata = selectedPeriod.metadata,
+                )
+                onConfirm(updated)
             }) {
                 Text(stringResource(R.string.button_save))
             }

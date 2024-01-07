@@ -31,6 +31,15 @@ class PeriodViewModel(private val healthConnectManager: HealthConnectManager) : 
     }
 
     val permissionsLauncher = healthConnectManager.requestPermissionsActivityContract()
+
+    fun writeMenstruationRecord(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModelScope.launch {
+            tryWithPermissionsCheck {
+                healthConnectManager.writeMenstruationRecords(menstruationPeriodRecord)
+                getPeriodRecords()
+            }
+        }
+    }
     private fun checkPermissions() {
         viewModelScope.launch {
             permissionsGranted = healthConnectManager.hasAllPermissions()

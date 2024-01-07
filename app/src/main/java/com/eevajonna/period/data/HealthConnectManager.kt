@@ -1,6 +1,8 @@
 package com.eevajonna.period.data
 
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
@@ -25,6 +27,17 @@ class HealthConnectManager(private val context: Context) {
         )
         val response = healthConnectClient.readRecords(request)
         return response.records
+    }
+
+    suspend fun writeMenstruationRecords(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        val records = listOf(menstruationPeriodRecord)
+        try {
+            healthConnectClient.insertRecords(records)
+            Toast.makeText(context, "Successfully insert records", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+            Log.e("Error", "Message: ${e.message}")
+        }
     }
 }
 val PERMISSIONS =
