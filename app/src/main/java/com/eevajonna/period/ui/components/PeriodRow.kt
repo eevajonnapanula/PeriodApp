@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -26,10 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.health.connect.client.records.MenstruationPeriodRecord
 import com.eevajonna.period.R
+import com.eevajonna.period.data.canEdit
 import com.eevajonna.period.data.endDateToLocalDate
 import com.eevajonna.period.data.startDateToLocalDate
 
@@ -40,6 +41,7 @@ fun PeriodRow(
     onEditIconClick: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,38 +52,41 @@ fun PeriodRow(
         horizontalArrangement = Arrangement.spacedBy(PeriodRow.horizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val context = LocalContext.current
         PeriodCanvas(startDate = period.startDateToLocalDate(), endDate = period.endDateToLocalDate(), modifier = Modifier.weight(6f))
         Column(modifier = Modifier.weight(1f)) {
-            IconButton(onClick = { menuOpen = true }) {
-                Icon(Icons.Default.MoreVert, stringResource(R.string.button_edit))
-            }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(
-                    text = { Text("Edit") },
-                    onClick = {
-                        menuOpen = false
-                        onEditIconClick()
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Edit,
-                            contentDescription = null,
-                        )
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text("Delete") },
-                    onClick = {
-                        menuOpen = false
-                        onDeleteIconClick()
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Delete,
-                            contentDescription = null,
-                        )
-                    },
-                )
+            if (period.canEdit(context)) {
+                IconButton(onClick = { menuOpen = true }) {
+                    Icon(Icons.Default.MoreVert, stringResource(R.string.button_edit))
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = {
+                            menuOpen = false
+                            onEditIconClick()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Edit,
+                                contentDescription = null,
+                            )
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            menuOpen = false
+                            onDeleteIconClick()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Delete,
+                                contentDescription = null,
+                            )
+                        },
+                    )
+                }
             }
         }
     }

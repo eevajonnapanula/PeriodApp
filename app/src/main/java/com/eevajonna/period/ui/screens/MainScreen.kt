@@ -40,9 +40,8 @@ import com.eevajonna.period.ui.PeriodViewModel
 import com.eevajonna.period.ui.PeriodViewModelFactory
 import com.eevajonna.period.ui.components.DateRangePickerDialog
 import com.eevajonna.period.ui.components.PeriodRow
-import java.time.LocalDate
-import android.health.connect.HealthConnectManager as HCM
 import java.time.Instant
+import android.health.connect.HealthConnectManager as HCM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,7 +149,7 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
                             onDeleteIconClick = {
                                 deleteMenstruationPeriod(it)
                                 showDatePickerDialog = false
-                            }
+                            },
                         ) {
                             selectedPeriod = it
                             showDatePickerDialog = true
