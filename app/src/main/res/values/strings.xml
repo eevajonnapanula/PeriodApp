@@ -4,4 +4,5 @@
     <string name="button_save">Save</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_add_new_period">Add new period</string>
+    <string name="button_give_permissions">Give permissions to Health Connect</string>
 </resources>

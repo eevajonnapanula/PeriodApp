@@ -1,11 +1,14 @@
 package com.eevajonna.period.ui.screens
 
+import android.content.Intent
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -20,10 +23,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
+import androidx.health.connect.client.HealthConnectClient
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eevajonna.period.R
 import com.eevajonna.period.data.HealthConnectManager
@@ -33,11 +39,13 @@ import com.eevajonna.period.ui.PeriodViewModelFactory
 import com.eevajonna.period.ui.components.DateRangePickerDialog
 import com.eevajonna.period.ui.components.PeriodRow
 import java.time.LocalDate
+import android.health.connect.HealthConnectManager as HCM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(healthConnectManager: HealthConnectManager) {
     val periods = emptyList<Period>()
+    val context = LocalContext.current
 
     val viewModel: PeriodViewModel = viewModel(
         factory = PeriodViewModelFactory(
@@ -56,7 +64,6 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
     var selectedPeriod by remember {
         mutableStateOf(Period.EMPTY)
     }
-
 
     LaunchedEffect(Unit) {
         if (viewModel.permissionsGranted) {
@@ -85,6 +92,23 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
                 .padding(paddingVals)
                 .padding(MainScreen.padding),
         ) {
+            if (viewModel.permissionsGranted.not()) {
+                item {
+                    Button(
+                        onClick = {
+                            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                Intent(HCM.ACTION_MANAGE_HEALTH_PERMISSIONS)
+                                    .putExtra(Intent.EXTRA_PACKAGE_NAME, context.packageName)
+                            } else {
+                                Intent(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS)
+                            }
+                            startActivity(context, intent, null)
+                        },
+                    ) {
+                        Text(stringResource(R.string.button_give_permissions))
+                    }
+                }
+            }
             periodsPerYear.entries
                 .sortedByDescending { it.key }
                 .map { (year, periodsForYear) ->
