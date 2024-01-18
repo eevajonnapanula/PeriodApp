@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 @Composable
-fun PeriodCanvas(modifier: Modifier = Modifier, startDate: LocalDate, endDate: LocalDate?) {
+fun PeriodCanvas(modifier: Modifier = Modifier, startDate: LocalDate, endDate: LocalDate) {
     val color = MaterialTheme.colorScheme.surface
     val periodColor = MaterialTheme.colorScheme.tertiaryContainer
     val textColor = MaterialTheme.colorScheme.onBackground
@@ -38,8 +38,8 @@ fun PeriodCanvas(modifier: Modifier = Modifier, startDate: LocalDate, endDate: L
             .height(PeriodCanvas.canvasHeight),
     ) {
         val dayWidth = (size.width - (PeriodCanvas.BackgroundOffset.x * 2).toPx()) / 14
-
-        val endDateToCompare = endDate ?: LocalDate.now().plusDays(6)
+        val endDateAvailable = !startDate.isEqual(endDate)
+        val endDateToCompare = if (endDateAvailable) endDate else LocalDate.now().plusDays(6)
 
         val periodWidth = startDate.until(endDateToCompare.plusDays(1), ChronoUnit.DAYS) * dayWidth
         val yOffset = size.height - PeriodCanvas.BackgroundOffset.y.toPx()
@@ -50,7 +50,7 @@ fun PeriodCanvas(modifier: Modifier = Modifier, startDate: LocalDate, endDate: L
             yOffset = yOffset,
             dayWidth = dayWidth,
             periodWidth = periodWidth,
-            endDateAvailable = endDate != null,
+            endDateAvailable = endDateAvailable,
         )
 
         val startTextLayoutResult = textMeasurer.measure(TextUtils.formatDate(startDate, "MMM d"))
@@ -68,7 +68,7 @@ fun PeriodCanvas(modifier: Modifier = Modifier, startDate: LocalDate, endDate: L
             ),
         )
 
-        endDate?.let {
+        if (endDateAvailable) {
             val endTextLayoutResult = textMeasurer.measure(TextUtils.formatDate(endDate, "MMM d"))
 
             drawDayIndicator(
@@ -165,7 +165,7 @@ fun PeriodCanvasPreview() {
             PeriodCanvas(
                 Modifier.background(MaterialTheme.colorScheme.background),
                 startDate = LocalDate.now().minusDays(3),
-                endDate = null,
+                endDate = LocalDate.now().minusDays(3),
             )
             PeriodCanvas(
                 Modifier.background(MaterialTheme.colorScheme.background),

@@ -17,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import com.eevajonna.period.R
-import com.eevajonna.period.ui.screens.Period
+import com.eevajonna.period.data.endDateToLocalDate
+import com.eevajonna.period.data.startDateToLocalDate
 
 @Composable
-fun PeriodRow(period: Period, onEditIconClick: () -> Unit) {
+fun PeriodRow(period: MenstruationPeriodRecord, onEditIconClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -32,7 +34,7 @@ fun PeriodRow(period: Period, onEditIconClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(PeriodRow.horizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        PeriodCanvas(startDate = period.startDate, endDate = period.endDate, modifier = Modifier.weight(6f))
+        PeriodCanvas(startDate = period.startDateToLocalDate(), endDate = period.endDateToLocalDate(), modifier = Modifier.weight(6f))
         IconButton(onClick = { onEditIconClick() }, modifier = Modifier.weight(1f)) {
             Icon(Icons.Default.Edit, stringResource(R.string.button_edit))
         }
