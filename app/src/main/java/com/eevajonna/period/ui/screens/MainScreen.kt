@@ -40,9 +40,8 @@ import com.eevajonna.period.ui.PeriodViewModel
 import com.eevajonna.period.ui.PeriodViewModelFactory
 import com.eevajonna.period.ui.components.DateRangePickerDialog
 import com.eevajonna.period.ui.components.PeriodRow
-import java.time.LocalDate
-import android.health.connect.HealthConnectManager as HCM
 import java.time.Instant
+import android.health.connect.HealthConnectManager as HCM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,9 +65,20 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
     var selectedPeriod by remember {
         mutableStateOf(MainScreen.emptyRecord)
     }
+    var datePickerAction by remember {
+        mutableStateOf(DatePickerAction.INSERT)
+    }
 
     fun saveMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
         viewModel.writeMenstruationRecord(menstruationPeriodRecord)
+    }
+
+    fun updateMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModel.updateMenstruationRecord(menstruationPeriodRecord)
+    }
+
+    fun deleteMenstruationPeriod(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModel.deleteMenstruationRecord(menstruationPeriodRecord)
     }
 
     LaunchedEffect(Unit) {
@@ -87,6 +97,7 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
             FloatingActionButton(onClick = {
                 selectedPeriod = MainScreen.emptyRecord
                 showDatePickerDialog = true
+                datePickerAction = DatePickerAction.INSERT
             }) {
                 Icon(Icons.Default.Add, stringResource(R.string.button_add_new_period))
             }
@@ -134,10 +145,15 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
                             ),
                     ) {
                         PeriodRow(
-                            period = it
+                            period = it,
+                            onDeleteIconClick = {
+                                deleteMenstruationPeriod(it)
+                                showDatePickerDialog = false
+                            },
                         ) {
                             selectedPeriod = it
                             showDatePickerDialog = true
+                            datePickerAction = DatePickerAction.UPDATE
                         }
                     }
                 }
@@ -149,7 +165,10 @@ fun MainScreen(healthConnectManager: HealthConnectManager) {
             ) { updatedSelectedPeriod ->
                 showDatePickerDialog = false
                 selectedPeriod = updatedSelectedPeriod
-                saveMenstruationPeriod(updatedSelectedPeriod)
+                when (datePickerAction) {
+                    DatePickerAction.INSERT -> saveMenstruationPeriod(updatedSelectedPeriod)
+                    DatePickerAction.UPDATE -> updateMenstruationPeriod(updatedSelectedPeriod)
+                }
             }
         }
     }
@@ -163,4 +182,8 @@ object MainScreen {
         startZoneOffset = null,
         endZoneOffset = null,
     )
+}
+
+enum class DatePickerAction {
+    UPDATE, INSERT
 }

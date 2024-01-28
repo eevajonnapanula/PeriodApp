@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -36,6 +35,24 @@ class PeriodViewModel(private val healthConnectManager: HealthConnectManager) : 
         viewModelScope.launch {
             tryWithPermissionsCheck {
                 healthConnectManager.writeMenstruationRecords(menstruationPeriodRecord)
+                getPeriodRecords()
+            }
+        }
+    }
+
+    fun deleteMenstruationRecord(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModelScope.launch {
+            tryWithPermissionsCheck {
+                healthConnectManager.deleteMenstruationRecords(menstruationPeriodRecord)
+                getPeriodRecords()
+            }
+        }
+    }
+
+    fun updateMenstruationRecord(menstruationPeriodRecord: MenstruationPeriodRecord) {
+        viewModelScope.launch {
+            tryWithPermissionsCheck {
+                healthConnectManager.updateMenstruationRecords(menstruationPeriodRecord)
                 getPeriodRecords()
             }
         }
